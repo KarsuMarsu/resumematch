@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>ResumeMatch - Professional Resume Optimization</title>
-    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-QT1QJG35N7"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -130,7 +129,7 @@
         </header>
 
         <div class="top-bar">
-            <div class="free-counter" id="freeCounterDisplay">Free: <span id="freeCount">3</span> left <span id="proBadge" class="pro-badge hidden">PRO</span></div>
+            <div class="free-counter" id="freeCounterDisplay">Free: <span id="freeCount">3</span> left</div>
             <div class="nav-buttons">
                 <button class="nav-btn" onclick="showMainApp()">Resume Tool</button>
                 <button class="nav-btn" onclick="showTracker()">Job Tracker</button>
@@ -255,7 +254,7 @@
             </div>
         </div>
 
-        <div class="note">Your data is stored locally. AI processes and forgets immediately.</div>
+        <div class="note">Your data is stored locally. AI processes and forgets immediately. Free users get 3 analyses every 2 days.</div>
     </div>
 
     <script>
@@ -267,25 +266,44 @@
         }
         if (localStorage.getItem('theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
 
-        // ========== PRO STATUS ==========
+        // ========== FREE TIER WITH EVERY OTHER DAY RESET ==========
+        function getFreeUsage() {
+            const lastReset = localStorage.getItem('lastResetDate');
+            const today = new Date().toDateString();
+            const twoDaysAgo = new Date();
+            twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+            const twoDaysAgoStr = twoDaysAgo.toDateString();
+            
+            if (!lastReset || new Date(lastReset) <= new Date(twoDaysAgoStr)) {
+                localStorage.setItem('resumeFreeUsage', '3');
+                localStorage.setItem('lastResetDate', today);
+                return 3;
+            }
+            return parseInt(localStorage.getItem('resumeFreeUsage') || '3');
+        }
+
         let isPro = localStorage.getItem('isPro') === 'true';
-        let freeUsage = parseInt(localStorage.getItem('resumeFreeUsage') || '0');
+        let freeUsage = getFreeUsage();
         const FREE_LIMIT = 3;
-        
-        function updateProUI() {
+        let currentData = {};
+        let currentTemplate = 'professional';
+        let currentTabContent = '';
+
+        function updateFreeCounter() {
             if (isPro) {
-                document.getElementById('proBadge').classList.remove('hidden');
+                document.getElementById('freeCounterDisplay').innerHTML = 'Pro Account: Unlimited <span class="pro-badge">PRO</span>';
                 document.getElementById('upgradePrompt').classList.add('hidden');
-                document.getElementById('proCodeSection').classList.add('hidden');
-                document.getElementById('freeCounterDisplay').innerHTML = 'Pro Account: Unlimited <span id="proBadge" class="pro-badge">PRO</span>';
-            } else {
-                document.getElementById('proBadge').classList.add('hidden');
-                const remaining = Math.max(0, FREE_LIMIT - freeUsage);
-                document.getElementById('freeCount').innerText = remaining;
-                if (remaining === 0) {
-                    document.getElementById('upgradePrompt').classList.remove('hidden');
-                    document.getElementById('rewriteBtn').disabled = true;
-                }
+                document.getElementById('rewriteBtn').disabled = false;
+                return;
+            }
+            
+            const remaining = Math.max(0, FREE_LIMIT - freeUsage);
+            document.getElementById('freeCount').innerText = remaining;
+            document.getElementById('freeCounterDisplay').innerHTML = `Free: <span id="freeCount">${remaining}</span> left (resets every 2 days)`;
+            
+            if (remaining === 0) {
+                document.getElementById('upgradePrompt').classList.remove('hidden');
+                document.getElementById('rewriteBtn').disabled = true;
             }
         }
 
@@ -479,27 +497,22 @@
         
         function verifyProCode() {
             const code = document.getElementById('proCode').value.trim().toUpperCase();
-            // Valid Pro codes - you can add more or generate unique ones
             const validCodes = ['PRO2025', 'RESUMEMATCH', 'PRO001', 'PRO002', 'PRO003'];
             
             if (validCodes.includes(code)) {
                 localStorage.setItem('isPro', 'true');
                 localStorage.setItem('resumeFreeUsage', '0');
                 isPro = true;
-                updateProUI();
+                updateFreeCounter();
                 document.getElementById('rewriteBtn').disabled = false;
                 alert('Pro account activated! You now have unlimited access.');
                 location.reload();
             } else {
-                alert('Invalid activation code. Please check your email or contact support@resumematch.com');
+                alert('Invalid activation code. Please check your email or contact support.');
             }
         }
 
         // ========== AI ANALYSIS ==========
-        let currentData = {};
-        let currentTemplate = 'professional';
-        let currentTabContent = '';
-
         function extractJSON(text) {
             let clean = text;
             if (clean.includes('```json')) {
@@ -522,10 +535,14 @@
                 return; 
             }
             
-            // Check Pro status
-            if (!isPro && freeUsage >= FREE_LIMIT) { 
-                document.getElementById('upgradePrompt').classList.remove('hidden'); 
-                return; 
+            // Refresh free usage (in case it reset)
+            if (!isPro) {
+                freeUsage = getFreeUsage();
+                updateFreeCounter();
+                if (freeUsage <= 0) { 
+                    document.getElementById('upgradePrompt').classList.remove('hidden'); 
+                    return; 
+                }
             }
 
             document.getElementById('loading').style.display = 'block';
@@ -609,10 +626,11 @@
                 
                 document.getElementById('resultsArea').style.display = 'block';
                 
+                // Decrement free usage if not Pro
                 if (!isPro) {
-                    freeUsage++;
+                    freeUsage--;
                     localStorage.setItem('resumeFreeUsage', freeUsage);
-                    updateProUI();
+                    updateFreeCounter();
                 }
                 
             } catch (err) {
@@ -645,7 +663,8 @@
         function copyCurrentTab() { updateCurrentTab(); navigator.clipboard.writeText(currentTabContent); alert('Copied to clipboard'); }
         function downloadCurrentTab() { updateCurrentTab(); const blob = new Blob([currentTabContent], {type: 'text/plain'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'resume_output.txt'; a.click(); URL.revokeObjectURL(a.href); }
 
-        updateProUI();
+        // ========== INITIALIZE ==========
+        updateFreeCounter();
         renderJobTracker();
         renderVersionHistory();
     </script>
