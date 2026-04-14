@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>ResumeMatch - Professional Resume Optimization</title>
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googleapis.com/gtag/js?id=G-QT1QJG35N7"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QT1QJG35N7"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
@@ -92,20 +92,12 @@
         .tab-content.active { display: block; }
         .output-text { background: var(--bg-primary); padding: 16px; border-radius: 12px; font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.5; white-space: pre-wrap; max-height: 350px; overflow-y: auto; }
 
-        /* Version History */
         .version-item { background: var(--bg-primary); border-radius: 8px; padding: 10px; margin-bottom: 8px; cursor: pointer; border-left: 3px solid var(--accent); }
         .version-date { font-size: 0.7rem; color: var(--text-secondary); }
 
-        /* Job Tracker */
         .tracker-item { background: var(--bg-primary); border-radius: 8px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
         .tracker-status { padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; background: var(--accent-light); }
         .tracker-actions button { background: none; border: none; cursor: pointer; margin-left: 8px; }
-
-        /* Skeleton Loading */
-        .skeleton { background: linear-gradient(90deg, var(--border) 25%, var(--bg-primary) 50%, var(--border) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; }
-        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-        .skeleton-text { height: 12px; margin: 8px 0; }
-        .skeleton-title { height: 20px; width: 60%; margin-bottom: 16px; }
 
         .loading { text-align: center; padding: 30px; display: none; }
         .spinner { border: 3px solid var(--border); border-top: 3px solid var(--accent); border-radius: 50%; width: 35px; height: 35px; animation: spin 1s linear infinite; margin: 0 auto 12px; }
@@ -138,7 +130,6 @@
             </div>
         </div>
 
-        <!-- Main App View -->
         <div id="mainAppView">
             <div class="main-grid">
                 <div class="card">
@@ -223,7 +214,6 @@
             </div>
         </div>
 
-        <!-- Job Tracker View -->
         <div id="trackerView" class="hidden">
             <div class="card">
                 <h2>Job Application Tracker</h2>
@@ -243,7 +233,6 @@
             </div>
         </div>
 
-        <!-- History View -->
         <div id="historyView" class="hidden">
             <div class="card">
                 <h2>Saved Resume Versions</h2>
@@ -460,10 +449,16 @@
             } else { alert('Enter a valid email'); }
         }
 
-        // ========== AI ANALYSIS (FIXED) ==========
+        // ========== AI ANALYSIS - FIXED VERSION ==========
         function extractJSON(text) {
-            // Try to find JSON between curly braces
-            const match = text.match(/\{[\s\S]*\}/);
+            // Remove markdown code blocks if present
+            let clean = text;
+            if (clean.includes('```json')) {
+                clean = clean.split('```json')[1].split('```')[0];
+            } else if (clean.includes('```')) {
+                clean = clean.split('```')[1];
+            }
+            const match = clean.match(/\{[\s\S]*\}/);
             if (!match) throw new Error('No JSON found in response');
             return JSON.parse(match[0]);
         }
@@ -488,38 +483,52 @@
             document.getElementById('rewriteBtn').disabled = true;
 
             try {
+                // Get API key - prompt user if not stored
+                let apiKey = localStorage.getItem('openrouter_api_key');
+                if (!apiKey) {
+                    apiKey = prompt('Enter your OpenRouter API key (get free from https://openrouter.ai/keys):');
+                    if (apiKey && apiKey.startsWith('sk-or-v1-')) {
+                        localStorage.setItem('openrouter_api_key', apiKey);
+                    } else {
+                        throw new Error('Valid API key required. Get one at https://openrouter.ai/keys');
+                    }
+                }
+
                 const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: { 
-        'Content-Type': 'application/json', 
-        'Authorization': 'Bearer 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',
-        'HTTP-Referer': 'https://fluffy-cactus-3d14ed.netlify.app',
-        'X-Title': 'ResumeMatch'
-    },
-    body: JSON.stringify({
-        model: 'qwen/qwen3.6-plus-preview:free',
-        messages: [
-            {
-                role: 'system',
-                content: `You are a resume expert. Return ONLY valid JSON. No other text. Use this exact format:
-{"score": 75, "missing_keywords": ["keyword1"], "rewritten_resume": "optimized text", "cover_letter": "letter text", "linkedin_about": "bio text", "interview_questions": ["q1", "q2"]}`
-            },
-            {
-                role: 'user',
-                content: `Resume: ${resume}\n\nJob Description: ${job}\n\n${custom ? 'Additional instruction: ' + custom : ''}`
-            }
-        ],
-        temperature: 0.3,
-        max_tokens: 2000
-    })
-});
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'Authorization': `Bearer ${apiKey}`,
+                        'HTTP-Referer': 'https://fluffy-cactus-3d14ed.netlify.app',
+                        'X-Title': 'ResumeMatch'
+                    },
+                    body: JSON.stringify({
+                        model: 'openrouter/free',
+                        messages: [
+                            {
+                                role: 'system',
+                                content: `You are a resume expert. Return ONLY valid JSON. No markdown, no extra text. Use this exact format:
+{"score": 75, "missing_keywords": ["keyword1", "keyword2"], "rewritten_resume": "optimized resume text here", "cover_letter": "cover letter text here", "linkedin_about": "LinkedIn bio here", "interview_questions": ["q1", "q2", "q3"]}`
+                            },
+                            {
+                                role: 'user',
+                                content: `Resume: ${resume}\n\nJob Description: ${job}\n\n${custom ? 'Additional instruction: ' + custom : ''}`
+                            }
+                        ],
+                        temperature: 0.3,
+                        max_tokens: 2000
+                    })
+                });
 
                 const data = await response.json();
                 console.log('API Response:', data);
                 
-                // Check for API errors
                 if (data.error) {
-                    throw new Error(data.error.message || 'API error');
+                    if (data.error.message.includes('API key')) {
+                        localStorage.removeItem('openrouter_api_key');
+                        throw new Error('Invalid API key. Please refresh and enter a valid key.');
+                    }
+                    throw new Error(data.error.message);
                 }
                 
                 if (!data.choices || !data.choices[0] || !data.choices[0].message) {
@@ -527,7 +536,7 @@
                 }
                 
                 const rawContent = data.choices[0].message.content;
-                console.log('Raw content:', rawContent);
+                console.log('Raw AI response:', rawContent);
                 
                 const parsed = extractJSON(rawContent);
                 
@@ -540,7 +549,6 @@
                     interview_questions: parsed.interview_questions || ['Tell me about yourself.', 'Why do you want this role?']
                 };
                 
-                // Update UI
                 document.getElementById('scoreValue').innerText = currentData.score + '%';
                 const deg = (currentData.score / 100) * 360;
                 document.getElementById('scoreCircle').style.background = `conic-gradient(#8b6914 ${deg}deg, #d4c5b0 ${deg}deg)`;
@@ -564,7 +572,11 @@
                 
             } catch (err) {
                 console.error('Error:', err);
-                alert('Error: ' + err.message + '\n\nPlease try again. The free API may be slow or rate-limited.');
+                if (err.message.includes('API key')) {
+                    alert(err.message);
+                } else {
+                    alert('Error: ' + err.message + '\n\nPlease try again.');
+                }
             } finally {
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('rewriteBtn').disabled = false;
