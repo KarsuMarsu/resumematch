@@ -548,6 +548,18 @@
             });
         });
 
+        // Clean JSON from AI response
+        function extractJSON(text) {
+            // Find first { and last }
+            const firstBrace = text.indexOf('{');
+            const lastBrace = text.lastIndexOf('}');
+            if (firstBrace === -1 || lastBrace === -1) {
+                throw new Error('No JSON found in response');
+            }
+            const jsonStr = text.substring(firstBrace, lastBrace + 1);
+            return JSON.parse(jsonStr);
+        }
+
         async function analyzeAndGenerate() {
             const resume = document.getElementById('resume').value;
             const job = document.getElementById('jobDescription').value;
@@ -561,57 +573,88 @@
             try {
                 const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer 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' },
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'Authorization': 'Bearer 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' 
+                    },
                     body: JSON.stringify({
                         model: 'openai/gpt-4o-mini',
                         messages: [{
                             role: 'system',
-                            content: `You are a professional career coach. Analyze the resume against the job description and return ONLY valid JSON:
-                            {
-                                "score": 0-100,
-                                "missing_keywords": ["keyword1", "keyword2"],
-                                "rewritten_resume": "optimized resume text",
-                                "cover_letter": "professional cover letter",
-                                "linkedin_about": "2-3 paragraph LinkedIn bio",
-                                "interview_questions": ["q1", "q2", "q3", "q4", "q5"]
-                            }
-                            Rules: Never invent experience. Keep all facts intact.`
+                            content: `You are a professional career coach. Analyze the resume against the job description. Return ONLY valid JSON with no extra text. Use this exact structure:
+{
+    "score": 75,
+    "missing_keywords": ["keyword1", "keyword2"],
+    "rewritten_resume": "optimized resume text here",
+    "cover_letter": "professional cover letter here",
+    "linkedin_about": "2-3 paragraph LinkedIn bio here",
+    "interview_questions": ["question 1", "question 2", "question 3", "question 4", "question 5"]
+}
+Rules: Never invent experience. Keep all facts intact. Score based on keyword match and relevance.`
                         }, {
                             role: 'user',
                             content: `Resume:\n${resume}\n\nJob Description:\n${job}`
                         }],
-                        temperature: 0.7,
-                        max_tokens: 3000
+                        temperature: 0.5,
+                        max_tokens: 2500
                     })
                 });
+                
                 const data = await response.json();
-                const content = data.choices[0].message.content;
-                const parsed = JSON.parse(content);
-
-                currentData = parsed;
-                document.getElementById('scoreValue').innerText = parsed.score + '%';
-                const deg = (parsed.score / 100) * 360;
+                const rawContent = data.choices[0].message.content;
+                console.log('Raw AI response:', rawContent);
+                
+                // Extract and parse JSON
+                const parsed = extractJSON(rawContent);
+                
+                // Validate required fields
+                currentData = {
+                    score: parsed.score || 50,
+                    missing_keywords: parsed.missing_keywords || [],
+                    rewritten_resume: parsed.rewritten_resume || 'Unable to generate optimized resume.',
+                    cover_letter: parsed.cover_letter || 'Unable to generate cover letter.',
+                    linkedin_about: parsed.linkedin_about || 'Unable to generate LinkedIn profile.',
+                    interview_questions: parsed.interview_questions || ['Tell me about yourself.', 'Why do you want this role?']
+                };
+                
+                // Update UI
+                document.getElementById('scoreValue').innerText = currentData.score + '%';
+                const deg = (currentData.score / 100) * 360;
                 document.getElementById('scoreCircle').style.background = `conic-gradient(#8b6914 ${deg}deg, #d4c5b0 ${deg}deg)`;
                 
                 const missingDiv = document.getElementById('missingKeywordsList');
-                missingDiv.innerHTML = parsed.missing_keywords.map(k => `<span class="keyword-tag">${k}</span>`).join('');
+                if (currentData.missing_keywords.length > 0) {
+                    missingDiv.innerHTML = currentData.missing_keywords.map(k => `<span class="keyword-tag">${escapeHtml(k)}</span>`).join('');
+                } else {
+                    missingDiv.innerHTML = '<span>No critical keywords missing</span>';
+                }
                 
-                document.getElementById('rewrittenResume').innerText = parsed.rewritten_resume;
-                document.getElementById('coverLetter').innerText = parsed.cover_letter;
-                document.getElementById('linkedinAbout').innerText = parsed.linkedin_about;
-                document.getElementById('interviewQuestions').innerHTML = parsed.interview_questions.map((q,i) => `${i+1}. ${q}`).join('\n\n');
+                document.getElementById('rewrittenResume').innerText = currentData.rewritten_resume;
+                document.getElementById('coverLetter').innerText = currentData.cover_letter;
+                document.getElementById('linkedinAbout').innerText = currentData.linkedin_about;
+                document.getElementById('interviewQuestions').innerHTML = currentData.interview_questions.map((q,i) => `${i+1}. ${escapeHtml(q)}`).join('\n\n');
                 
                 document.getElementById('resultsArea').style.display = 'block';
                 freeUsage++;
                 localStorage.setItem('resumeFreeUsage', freeUsage);
                 updateFreeCounter();
-            } catch (err) {
-                console.error(err);
-                alert('Error: ' + err.message);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error: ' + error.message + '\n\nPlease try again. If this persists, the API may be temporarily unavailable.');
             } finally {
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('rewriteBtn').disabled = false;
             }
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
         }
 
         let currentTabContent = '';
@@ -622,9 +665,27 @@
             else if (activeTab === 'linkedin') currentTabContent = currentData.linkedin_about || '';
             else if (activeTab === 'interview') currentTabContent = (currentData.interview_questions || []).join('\n\n');
         }
-        function copyCurrentTab() { updateCurrentTab(); navigator.clipboard.writeText(currentTabContent); alert('Copied!'); }
-        function downloadCurrentTab() { updateCurrentTab(); const blob = new Blob([currentTabContent], {type: 'text/plain'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'resume_output.txt'; a.click(); URL.revokeObjectURL(a.href); }
-        function checkout() { alert('Pro version coming soon. Email pro@resumematch.com for early access.'); }
+        
+        function copyCurrentTab() { 
+            updateCurrentTab(); 
+            navigator.clipboard.writeText(currentTabContent); 
+            alert('Copied to clipboard!'); 
+        }
+        
+        function downloadCurrentTab() { 
+            updateCurrentTab(); 
+            const blob = new Blob([currentTabContent], {type: 'text/plain'}); 
+            const a = document.createElement('a'); 
+            a.href = URL.createObjectURL(blob); 
+            a.download = 'resume_output.txt'; 
+            a.click(); 
+            URL.revokeObjectURL(a.href); 
+        }
+        
+        function checkout() { 
+            alert('Pro version coming soon. Email pro@resumematch.com for early access.'); 
+        }
+        
         updateFreeCounter();
     </script>
 </body>
