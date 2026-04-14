@@ -103,14 +103,23 @@
         .spinner { border: 3px solid var(--border); border-top: 3px solid var(--accent); border-radius: 50%; width: 35px; height: 35px; animation: spin 1s linear infinite; margin: 0 auto 12px; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        .upgrade, .waitlist-section { text-align: center; margin-top: 20px; padding: 20px; background: var(--wood-gradient); border-radius: 16px; color: white; }
-        .waitlist-section input { margin-top: 12px; padding: 10px; width: 100%; border-radius: 30px; border: none; background: white; }
-        .waitlist-section button { margin-top: 10px; background: white; color: var(--accent-dark); border: none; padding: 8px 20px; border-radius: 30px; cursor: pointer; }
+        .upgrade, .waitlist-section, .pro-code-section { text-align: center; margin-top: 20px; padding: 20px; background: var(--wood-gradient); border-radius: 16px; color: white; }
+        .waitlist-section input, .pro-code-section input { margin-top: 12px; padding: 10px; width: 100%; border-radius: 30px; border: none; background: white; }
+        .waitlist-section button, .pro-code-section button { margin-top: 10px; background: white; color: var(--accent-dark); border: none; padding: 8px 20px; border-radius: 30px; cursor: pointer; }
         .coffee-link { text-align: center; margin-top: 16px; }
         .coffee-link a { color: var(--accent-dark); text-decoration: none; font-size: 0.8rem; }
 
         .note { font-size: 0.65rem; text-align: center; margin-top: 20px; color: var(--text-secondary); }
         .hidden { display: none; }
+        
+        .pro-badge {
+            background: var(--accent);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -121,12 +130,12 @@
         </header>
 
         <div class="top-bar">
-            <div class="free-counter">Free: <span id="freeCount">3</span> left</div>
+            <div class="free-counter" id="freeCounterDisplay">Free: <span id="freeCount">3</span> left <span id="proBadge" class="pro-badge hidden">PRO</span></div>
             <div class="nav-buttons">
                 <button class="nav-btn" onclick="showMainApp()">Resume Tool</button>
                 <button class="nav-btn" onclick="showTracker()">Job Tracker</button>
                 <button class="nav-btn" onclick="showHistory()">History</button>
-                <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌓 Dark</button>
+                <button class="dark-mode-toggle" onclick="toggleDarkMode()">Dark Mode</button>
             </div>
         </div>
 
@@ -136,7 +145,7 @@
                     <h2><span class="tooltip">Your Resume<span class="tooltip-text">Paste or upload your current resume</span></span></h2>
                     <textarea id="resume" rows="6" placeholder="Paste your resume text here..."></textarea>
                     <div class="file-upload-area" onclick="document.getElementById('resumeFile').click()">
-                        <span>📎 Upload file</span>
+                        <span>Upload file</span>
                         <span class="file-name" id="fileName">No file</span>
                         <button class="upload-btn" type="button">Browse</button>
                     </div>
@@ -146,14 +155,14 @@
                     <textarea id="jobDescription" rows="4" placeholder="Paste job description here..."></textarea>
 
                     <h2 style="margin-top: 20px;"><span class="tooltip">Ask AI (Optional)<span class="tooltip-text">Give specific instructions to the AI</span></span></h2>
-                    <input type="text" id="customInstructions" placeholder="e.g., 'Emphasize my leadership experience' or 'Highlight Python skills' or 'Keep under 1 page'">
+                    <input type="text" id="customInstructions" placeholder="Example: Focus on leadership, emphasize technical skills, keep under one page">
 
                     <div class="button-group">
-                        <button class="btn-secondary" onclick="loadSampleResume()">📄 Sample Resume</button>
-                        <button class="btn-secondary" onclick="loadSampleJob()">💼 Sample Job</button>
+                        <button class="btn-secondary" onclick="loadSampleResume()">Sample Resume</button>
+                        <button class="btn-secondary" onclick="loadSampleJob()">Sample Job</button>
                     </div>
 
-                    <button class="btn-primary" id="rewriteBtn" onclick="analyzeAndGenerate()">✨ Analyze & Optimize</button>
+                    <button class="btn-primary" id="rewriteBtn" onclick="analyzeAndGenerate()">Analyze and Optimize</button>
                 </div>
 
                 <div class="card">
@@ -179,7 +188,7 @@
                             <button class="tab active" data-tab="rewritten">Resume</button>
                             <button class="tab" data-tab="coverletter">Cover Letter</button>
                             <button class="tab" data-tab="linkedin">LinkedIn</button>
-                            <button class="tab" data-tab="interview">Interview Qs</button>
+                            <button class="tab" data-tab="interview">Interview Questions</button>
                         </div>
 
                         <div id="rewrittenTab" class="tab-content active"><div class="output-text" id="rewrittenResume"></div></div>
@@ -188,27 +197,33 @@
                         <div id="interviewTab" class="tab-content"><div class="output-text" id="interviewQuestions"></div></div>
 
                         <div class="button-group">
-                            <button class="btn-secondary" onclick="copyCurrentTab()">📋 Copy</button>
-                            <button class="btn-secondary" onclick="downloadCurrentTab()">💾 Download TXT</button>
-                            <button class="btn-secondary" onclick="exportAsPDF()">📄 Export PDF</button>
-                            <button class="btn-secondary" onclick="saveVersion()">💾 Save Version</button>
+                            <button class="btn-secondary" onclick="copyCurrentTab()">Copy</button>
+                            <button class="btn-secondary" onclick="downloadCurrentTab()">Download TXT</button>
+                            <button class="btn-secondary" onclick="exportAsPDF()">Export PDF</button>
+                            <button class="btn-secondary" onclick="saveVersion()">Save Version</button>
                         </div>
                     </div>
 
                     <div id="upgradePrompt" class="upgrade hidden">
                         <p>Free uses remaining: 0</p>
                         <h3>Unlimited Access - $9.99</h3>
-                        <button onclick="checkout()">Upgrade Now</button>
+                        <button onclick="upgradeToPro()">Upgrade to Pro</button>
+                    </div>
+
+                    <div class="pro-code-section" id="proCodeSection">
+                        <p>Already have a Pro code?</p>
+                        <input type="text" id="proCode" placeholder="Enter your activation code">
+                        <button onclick="verifyProCode()">Activate Pro</button>
                     </div>
 
                     <div class="waitlist-section" id="waitlistSection">
-                        <p>🚀 Pro version coming soon</p>
+                        <p>Pro version updates</p>
                         <input type="email" id="waitlistEmail" placeholder="Your email for early access">
                         <button onclick="joinWaitlist()">Join Waitlist</button>
                     </div>
 
                     <div class="coffee-link">
-                        <a href="https://buymeacoffee.com/resumematch1" target="_blank">☕ Buy me a coffee</a>
+                        <a href="https://buymeacoffee.com/resumematch1" target="_blank">Support the project</a>
                     </div>
                 </div>
             </div>
@@ -227,7 +242,7 @@
                         <option value="Offer">Offer</option>
                         <option value="Rejected">Rejected</option>
                     </select>
-                    <button class="btn-primary" onclick="addJobApplication()" style="margin-top: 12px;">+ Add Application</button>
+                    <button class="btn-primary" onclick="addJobApplication()" style="margin-top: 12px;">Add Application</button>
                 </div>
                 <div id="jobList"></div>
             </div>
@@ -252,6 +267,28 @@
         }
         if (localStorage.getItem('theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
 
+        // ========== PRO STATUS ==========
+        let isPro = localStorage.getItem('isPro') === 'true';
+        let freeUsage = parseInt(localStorage.getItem('resumeFreeUsage') || '0');
+        const FREE_LIMIT = 3;
+        
+        function updateProUI() {
+            if (isPro) {
+                document.getElementById('proBadge').classList.remove('hidden');
+                document.getElementById('upgradePrompt').classList.add('hidden');
+                document.getElementById('proCodeSection').classList.add('hidden');
+                document.getElementById('freeCounterDisplay').innerHTML = 'Pro Account: Unlimited <span id="proBadge" class="pro-badge">PRO</span>';
+            } else {
+                document.getElementById('proBadge').classList.add('hidden');
+                const remaining = Math.max(0, FREE_LIMIT - freeUsage);
+                document.getElementById('freeCount').innerText = remaining;
+                if (remaining === 0) {
+                    document.getElementById('upgradePrompt').classList.remove('hidden');
+                    document.getElementById('rewriteBtn').disabled = true;
+                }
+            }
+        }
+
         // ========== NAVIGATION ==========
         function showMainApp() {
             document.getElementById('mainAppView').classList.remove('hidden');
@@ -269,21 +306,6 @@
             document.getElementById('trackerView').classList.add('hidden');
             document.getElementById('historyView').classList.remove('hidden');
             renderVersionHistory();
-        }
-
-        // ========== FREE TIER ==========
-        let freeUsage = parseInt(localStorage.getItem('resumeFreeUsage') || '0');
-        const FREE_LIMIT = 3;
-        let currentData = {};
-        let currentTemplate = 'professional';
-
-        function updateFreeCounter() {
-            const remaining = Math.max(0, FREE_LIMIT - freeUsage);
-            document.getElementById('freeCount').innerText = remaining;
-            if (remaining === 0) {
-                document.getElementById('upgradePrompt').classList.remove('hidden');
-                document.getElementById('rewriteBtn').disabled = true;
-            }
         }
 
         // ========== SAMPLES ==========
@@ -318,9 +340,9 @@
             if (currentTemplate === 'professional') {
                 // Already clean
             } else if (currentTemplate === 'modern') {
-                content = content.replace(/•/g, '→').replace(/\n\n/g, '\n\n---\n\n');
+                content = content.replace(/•/g, '-').replace(/\n\n/g, '\n\n---\n\n');
             } else if (currentTemplate === 'technical') {
-                content = '=== TECHNICAL SUMMARY ===\n\n' + content.replace(/•/g, '▶');
+                content = 'TECHNICAL SUMMARY\n\n' + content.replace(/•/g, '>');
             }
             document.getElementById('rewrittenResume').innerText = content;
         }
@@ -414,9 +436,9 @@
                 <div class="tracker-item">
                     <div><strong>${job.company}</strong> - ${job.title}<br><small>${job.date || 'No date'} | Status: <span class="tracker-status">${job.status}</span></small></div>
                     <div class="tracker-actions">
-                        <button onclick="updateJobStatus(${job.id}, 'Interview')">📅</button>
-                        <button onclick="updateJobStatus(${job.id}, 'Rejected')">❌</button>
-                        <button onclick="deleteJob(${job.id})">🗑️</button>
+                        <button onclick="updateJobStatus(${job.id}, 'Interview')">Interview</button>
+                        <button onclick="updateJobStatus(${job.id}, 'Rejected')">Reject</button>
+                        <button onclick="deleteJob(${job.id})">Delete</button>
                     </div>
                 </div>
             `).join('');
@@ -444,14 +466,41 @@
                 let waitlist = JSON.parse(localStorage.getItem('waitlist') || '[]');
                 if (!waitlist.includes(email)) waitlist.push(email);
                 localStorage.setItem('waitlist', JSON.stringify(waitlist));
-                alert('Thanks! You will be notified when Pro launches.');
+                alert('Thank you. You will be notified when Pro launches.');
                 document.getElementById('waitlistEmail').value = '';
             } else { alert('Enter a valid email'); }
         }
 
-        // ========== AI ANALYSIS - FIXED VERSION ==========
+        // ========== PRO UPGRADE ==========
+        function upgradeToPro() {
+            window.open('https://buymeacoffee.com/resumematch1', '_blank');
+            alert('After payment, you will receive a Pro activation code by email.');
+        }
+        
+        function verifyProCode() {
+            const code = document.getElementById('proCode').value.trim().toUpperCase();
+            // Valid Pro codes - you can add more or generate unique ones
+            const validCodes = ['PRO2025', 'RESUMEMATCH', 'PRO001', 'PRO002', 'PRO003'];
+            
+            if (validCodes.includes(code)) {
+                localStorage.setItem('isPro', 'true');
+                localStorage.setItem('resumeFreeUsage', '0');
+                isPro = true;
+                updateProUI();
+                document.getElementById('rewriteBtn').disabled = false;
+                alert('Pro account activated! You now have unlimited access.');
+                location.reload();
+            } else {
+                alert('Invalid activation code. Please check your email or contact support@resumematch.com');
+            }
+        }
+
+        // ========== AI ANALYSIS ==========
+        let currentData = {};
+        let currentTemplate = 'professional';
+        let currentTabContent = '';
+
         function extractJSON(text) {
-            // Remove markdown code blocks if present
             let clean = text;
             if (clean.includes('```json')) {
                 clean = clean.split('```json')[1].split('```')[0];
@@ -473,7 +522,8 @@
                 return; 
             }
             
-            if (freeUsage >= FREE_LIMIT) { 
+            // Check Pro status
+            if (!isPro && freeUsage >= FREE_LIMIT) { 
                 document.getElementById('upgradePrompt').classList.remove('hidden'); 
                 return; 
             }
@@ -483,14 +533,13 @@
             document.getElementById('rewriteBtn').disabled = true;
 
             try {
-                // Get API key - prompt user if not stored
                 let apiKey = localStorage.getItem('openrouter_api_key');
                 if (!apiKey) {
-                    apiKey = prompt('Enter your OpenRouter API key (get free from https://openrouter.ai/keys):');
+                    apiKey = prompt('Enter your OpenRouter API key (get free from openrouter.ai/keys):');
                     if (apiKey && apiKey.startsWith('sk-or-v1-')) {
                         localStorage.setItem('openrouter_api_key', apiKey);
                     } else {
-                        throw new Error('Valid API key required. Get one at https://openrouter.ai/keys');
+                        throw new Error('Valid API key required');
                     }
                 }
 
@@ -521,23 +570,16 @@
                 });
 
                 const data = await response.json();
-                console.log('API Response:', data);
                 
                 if (data.error) {
                     if (data.error.message.includes('API key')) {
                         localStorage.removeItem('openrouter_api_key');
-                        throw new Error('Invalid API key. Please refresh and enter a valid key.');
+                        throw new Error('Invalid API key');
                     }
                     throw new Error(data.error.message);
                 }
                 
-                if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-                    throw new Error('Invalid API response structure');
-                }
-                
                 const rawContent = data.choices[0].message.content;
-                console.log('Raw AI response:', rawContent);
-                
                 const parsed = extractJSON(rawContent);
                 
                 currentData = {
@@ -566,17 +608,16 @@
                 document.getElementById('interviewQuestions').innerHTML = currentData.interview_questions.map((q,i) => `${i+1}. ${escapeHtml(q)}`).join('\n\n');
                 
                 document.getElementById('resultsArea').style.display = 'block';
-                freeUsage++;
-                localStorage.setItem('resumeFreeUsage', freeUsage);
-                updateFreeCounter();
+                
+                if (!isPro) {
+                    freeUsage++;
+                    localStorage.setItem('resumeFreeUsage', freeUsage);
+                    updateProUI();
+                }
                 
             } catch (err) {
                 console.error('Error:', err);
-                if (err.message.includes('API key')) {
-                    alert(err.message);
-                } else {
-                    alert('Error: ' + err.message + '\n\nPlease try again.');
-                }
+                alert('Error: ' + err.message + '\n\nPlease try again.');
             } finally {
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('rewriteBtn').disabled = false;
@@ -593,8 +634,6 @@
             });
         }
 
-        // ========== UTILITIES ==========
-        let currentTabContent = '';
         function updateCurrentTab() {
             const active = document.querySelector('.tab.active').dataset.tab;
             if (active === 'rewritten') currentTabContent = currentData.rewritten_resume || '';
@@ -602,11 +641,11 @@
             else if (active === 'linkedin') currentTabContent = currentData.linkedin_about || '';
             else if (active === 'interview') currentTabContent = (currentData.interview_questions || []).join('\n\n');
         }
-        function copyCurrentTab() { updateCurrentTab(); navigator.clipboard.writeText(currentTabContent); alert('Copied!'); }
+        
+        function copyCurrentTab() { updateCurrentTab(); navigator.clipboard.writeText(currentTabContent); alert('Copied to clipboard'); }
         function downloadCurrentTab() { updateCurrentTab(); const blob = new Blob([currentTabContent], {type: 'text/plain'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'resume_output.txt'; a.click(); URL.revokeObjectURL(a.href); }
-        function checkout() { alert('Pro version: $9.99 lifetime. Email pro@resumematch.com for early access.'); }
 
-        updateFreeCounter();
+        updateProUI();
         renderJobTracker();
         renderVersionHistory();
     </script>
