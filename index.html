@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>ResumeMatch AI - Tailor Your Resume to Any Job</title>
+    <title>ResumeMatch - Professional Resume Optimization</title>
     <style>
         * {
             margin: 0;
@@ -11,61 +11,65 @@
             box-sizing: border-box;
         }
 
-        /* CSS Variables for Light/Dark Mode */
+        /* Professional Brown/Woody Color Scheme */
         :root {
-            --bg-primary: #f8f9fa;
+            --bg-primary: #f5f0e8;
             --bg-card: #ffffff;
-            --text-primary: #1a1a2e;
-            --text-secondary: #4a5568;
-            --border: #e2e8f0;
-            --gradient-start: #667eea;
-            --gradient-end: #764ba2;
-            --success: #10b981;
-            --warning: #f59e0b;
+            --text-primary: #2c2418;
+            --text-secondary: #5c4b32;
+            --border: #d4c5b0;
+            --accent: #8b6914;
+            --accent-dark: #6b4e0a;
+            --accent-light: #d4b87a;
+            --success: #2d6a4f;
+            --warning: #b9781e;
+            --wood-gradient: linear-gradient(135deg, #8b6914 0%, #5c3d0e 100%);
         }
 
         [data-theme="dark"] {
-            --bg-primary: #0f172a;
-            --bg-card: #1e293b;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --border: #334155;
-            --gradient-start: #818cf8;
-            --gradient-end: #c084fc;
+            --bg-primary: #1e1915;
+            --bg-card: #2c2418;
+            --text-primary: #f0ebe3;
+            --text-secondary: #c4b59f;
+            --border: #4a3b2a;
+            --accent: #c49a2a;
+            --accent-dark: #a07d1c;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Georgia', 'Times New Roman', -apple-system, BlinkMacSystemFont, serif;
             background: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
-            padding: 16px;
+            padding: 20px;
             transition: all 0.3s ease;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
         /* Header */
         header {
             text-align: center;
-            margin-bottom: 32px;
+            margin-bottom: 40px;
+            padding: 20px 0;
+            border-bottom: 2px solid var(--border);
         }
 
         h1 {
-            font-size: 1.8rem;
-            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 8px;
+            font-size: 2.2rem;
+            color: var(--accent-dark);
+            letter-spacing: -0.5px;
+            font-weight: 600;
         }
 
         .subtitle {
             color: var(--text-secondary);
             font-size: 0.95rem;
+            margin-top: 8px;
+            font-style: italic;
         }
 
         /* Top Bar */
@@ -73,46 +77,65 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 24px;
+            margin-bottom: 30px;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 15px;
         }
 
         .free-counter {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            padding: 8px 16px;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            font-weight: 600;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--accent-dark);
         }
 
         .dark-mode-toggle {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            padding: 8px 16px;
-            border-radius: 50px;
+            padding: 8px 20px;
+            border-radius: 30px;
             cursor: pointer;
-            font-size: 1.2rem;
+            font-size: 0.85rem;
             transition: all 0.2s;
+            color: var(--text-primary);
         }
 
-        .dark-mode-toggle:hover {
-            transform: scale(1.05);
+        /* Main Grid Layout */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
         }
 
-        /* Main Card */
-        .main-card {
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Cards */
+        .card {
             background: var(--bg-card);
-            border-radius: 24px;
+            border-radius: 16px;
             padding: 24px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
             border: 1px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
-        /* Form Groups */
+        .card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            color: var(--accent-dark);
+            border-left: 3px solid var(--accent);
+            padding-left: 12px;
+        }
+
+        /* Form Elements */
         .form-group {
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         label {
@@ -120,24 +143,26 @@
             font-weight: 600;
             margin-bottom: 8px;
             color: var(--text-primary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        textarea, .file-upload-area {
+        textarea {
             width: 100%;
             padding: 12px;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            font-size: 14px;
-            font-family: monospace;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: 'Courier New', monospace;
             resize: vertical;
             background: var(--bg-primary);
             color: var(--text-primary);
-            transition: all 0.2s;
         }
 
         textarea:focus {
             outline: none;
-            border-color: var(--gradient-start);
+            border-color: var(--accent);
         }
 
         /* File Upload */
@@ -147,17 +172,16 @@
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 12px;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px dashed var(--border);
+            border-radius: 8px;
             cursor: pointer;
         }
 
-        .file-upload-area:hover {
-            border-color: var(--gradient-start);
-        }
-
         .file-name {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-secondary);
-            word-break: break-all;
         }
 
         input[type="file"] {
@@ -165,80 +189,151 @@
         }
 
         .upload-btn {
-            background: var(--gradient-start);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 8px;
+            background: var(--bg-primary);
+            color: var(--accent-dark);
+            padding: 6px 14px;
+            border-radius: 6px;
             font-size: 0.8rem;
-            border: none;
+            border: 1px solid var(--border);
             cursor: pointer;
         }
 
-        /* Button Group */
+        /* Buttons */
+        .btn-primary {
+            background: var(--wood-gradient);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 40px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(107, 78, 10, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--accent-dark);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+        }
+
         .button-group {
             display: flex;
             gap: 12px;
             flex-wrap: wrap;
-            margin: 20px 0;
+            margin: 16px 0;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-            color: white;
-            border: none;
-            padding: 14px 24px;
-            font-size: 16px;
-            font-weight: 600;
+        /* Score Display */
+        .score-section {
+            background: var(--bg-primary);
             border-radius: 12px;
-            cursor: pointer;
-            flex: 1;
-            transition: all 0.2s;
-        }
-
-        .btn-secondary {
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-            padding: 10px 20px;
-            font-size: 14px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-primary:hover, .btn-secondary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* Example Buttons */
-        .examples {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
+            padding: 16px;
             margin-bottom: 20px;
+            text-align: center;
         }
 
-        .example-btn {
+        .score-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: conic-gradient(var(--accent) 0deg, var(--border) 0deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            position: relative;
+        }
+
+        .score-inner {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--accent-dark);
+        }
+
+        .missing-keywords {
             background: var(--bg-primary);
-            border: 1px solid var(--border);
-            padding: 6px 12px;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+
+        .keyword-tag {
+            display: inline-block;
+            background: var(--accent-light);
+            color: var(--text-primary);
+            padding: 4px 10px;
             border-radius: 20px;
             font-size: 0.75rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            color: var(--text-secondary);
+            margin: 4px;
         }
 
-        .example-btn:hover {
-            border-color: var(--gradient-start);
-            color: var(--gradient-start);
+        /* Results Tabs */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            color: var(--accent-dark);
+            border-bottom: 2px solid var(--accent);
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .output-text {
+            background: var(--bg-primary);
+            padding: 20px;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
         }
 
         /* Loading */
@@ -249,8 +344,8 @@
         }
 
         .spinner {
-            border: 4px solid var(--border);
-            border-top: 4px solid var(--gradient-start);
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--accent);
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -263,184 +358,149 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Results */
-        .results {
-            display: none;
-            margin-top: 30px;
-            padding-top: 30px;
-            border-top: 1px solid var(--border);
-        }
-
-        .results h2 {
-            margin-bottom: 15px;
-            color: var(--text-primary);
-            font-size: 1.3rem;
-        }
-
-        pre {
-            background: var(--bg-primary);
-            padding: 20px;
-            border-radius: 12px;
-            overflow-x: auto;
-            font-family: monospace;
-            font-size: 13px;
-            line-height: 1.5;
-            white-space: pre-wrap;
-            border: 1px solid var(--border);
-        }
-
-        /* Upgrade Prompt */
+        /* Upgrade */
         .upgrade {
             display: none;
             text-align: center;
             margin-top: 24px;
             padding: 24px;
-            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            background: var(--wood-gradient);
             border-radius: 16px;
             color: white;
         }
 
         .upgrade button {
             background: white;
-            color: var(--gradient-start);
+            color: var(--accent-dark);
             border: none;
-            padding: 12px 24px;
-            border-radius: 50px;
+            padding: 12px 28px;
+            border-radius: 40px;
             font-weight: 600;
             margin-top: 12px;
             cursor: pointer;
         }
 
         .note {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--text-secondary);
             text-align: center;
             margin-top: 24px;
-        }
-
-        /* Mobile Responsive */
-        @media (max-width: 640px) {
-            body {
-                padding: 12px;
-            }
-            
-            .main-card {
-                padding: 20px;
-            }
-            
-            h1 {
-                font-size: 1.5rem;
-            }
-            
-            .button-group {
-                flex-direction: column;
-            }
-            
-            .btn-primary {
-                width: 100%;
-            }
-            
-            .top-bar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .dark-mode-toggle {
-                text-align: center;
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>📄 ResumeMatch AI</h1>
-            <p class="subtitle">Tailor your resume to any job description in seconds</p>
+            <h1>ResumeMatch</h1>
+            <p class="subtitle">Professional resume optimization for serious candidates</p>
         </header>
 
         <div class="top-bar">
-            <div class="free-counter">
-                🎁 Free rewrites: <span id="freeCount">3</span> remaining
-            </div>
-            <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+            <div class="free-counter">Free optimizations remaining: <span id="freeCount">3</span></div>
+            <button class="dark-mode-toggle" onclick="toggleDarkMode()">Dark Mode</button>
         </div>
 
-        <div class="main-card">
-            <div class="form-group">
-                <label>📝 Your Resume</label>
-                <textarea id="resume" rows="6" placeholder="Paste your resume here... or upload a file below"></textarea>
+        <div class="main-grid">
+            <!-- Left Column: Input -->
+            <div class="card">
+                <h2>Your Resume</h2>
+                <textarea id="resume" rows="8" placeholder="Paste your resume text here..."></textarea>
                 <div class="file-upload-area" onclick="document.getElementById('resumeFile').click()">
-                    <span>📎 Or upload file</span>
-                    <span class="file-name" id="fileName">No file chosen</span>
-                    <button class="upload-btn" type="button">Choose File</button>
+                    <span>Upload file (TXT, PDF, DOCX)</span>
+                    <span class="file-name" id="fileName">No file selected</span>
+                    <button class="upload-btn" type="button">Browse</button>
                 </div>
                 <input type="file" id="resumeFile" accept=".txt,.pdf,.docx" style="display: none">
-            </div>
 
-            <div class="form-group">
-                <label>🎯 Job Description</label>
-                <textarea id="jobDescription" rows="5" placeholder="Paste the job description here..."></textarea>
-            </div>
+                <h2 style="margin-top: 24px;">Target Job Description</h2>
+                <textarea id="jobDescription" rows="6" placeholder="Paste the job description here..."></textarea>
 
-            <div class="examples">
-                <span style="font-size: 0.75rem; color: var(--text-secondary);">Try an example:</span>
-                <button class="example-btn" onclick="loadExample('resume')">📄 Sample Resume</button>
-                <button class="example-btn" onclick="loadExample('job')">💼 Sample Job</button>
-                <button class="example-btn" onclick="loadBothExamples()">✨ Both</button>
-            </div>
-
-            <button class="btn-primary" id="rewriteBtn" onclick="rewriteResume()">✨ Tailor My Resume</button>
-
-            <div id="loading" class="loading">
-                <div class="spinner"></div>
-                <p>AI is optimizing your resume...</p>
-            </div>
-
-            <div id="results" class="results">
-                <h2>✅ Your Tailored Resume</h2>
-                <div class="button-group">
-                    <button class="btn-secondary" onclick="copyToClipboard()">📋 Copy to Clipboard</button>
-                    <button class="btn-secondary" onclick="downloadText()">💾 Download as .txt</button>
+                <div class="button-group" style="margin-top: 20px;">
+                    <button class="btn-secondary" onclick="loadSampleResume()">Sample Resume</button>
+                    <button class="btn-secondary" onclick="loadSampleJob()">Sample Job</button>
                 </div>
-                <pre id="rewrittenResume"></pre>
+
+                <button class="btn-primary" id="rewriteBtn" onclick="analyzeAndGenerate()">Analyze & Optimize</button>
             </div>
 
-            <div id="upgradePrompt" class="upgrade">
-                <p>✨ You've used your free rewrites!</p>
-                <h3>Get Unlimited Rewrites for $9.99</h3>
-                <button onclick="checkout()">💳 Upgrade to Pro</button>
-                <small style="display: block; margin-top: 10px;">One-time payment · Lifetime access</small>
-            </div>
+            <!-- Right Column: Results -->
+            <div class="card">
+                <h2>Analysis & Results</h2>
+                
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Analyzing with AI...</p>
+                </div>
 
-            <div class="note">
-                ⚡ Your data is never stored. AI processes and forgets immediately.
+                <div id="resultsArea" style="display: none;">
+                    <!-- Score Section -->
+                    <div class="score-section">
+                        <div class="score-circle" id="scoreCircle">
+                            <div class="score-inner" id="scoreValue">0%</div>
+                        </div>
+                        <p style="font-size: 0.8rem;">ATS Match Score</p>
+                        
+                        <div id="missingKeywordsArea" class="missing-keywords">
+                            <strong>Missing Keywords</strong>
+                            <div id="missingKeywordsList"></div>
+                        </div>
+                    </div>
+
+                    <!-- Tabs -->
+                    <div class="tabs">
+                        <button class="tab active" data-tab="rewritten">Optimized Resume</button>
+                        <button class="tab" data-tab="coverletter">Cover Letter</button>
+                        <button class="tab" data-tab="linkedin">LinkedIn About</button>
+                        <button class="tab" data-tab="interview">Interview Questions</button>
+                    </div>
+
+                    <div id="rewrittenTab" class="tab-content active">
+                        <div class="output-text" id="rewrittenResume"></div>
+                    </div>
+                    <div id="coverletterTab" class="tab-content">
+                        <div class="output-text" id="coverLetter"></div>
+                    </div>
+                    <div id="linkedinTab" class="tab-content">
+                        <div class="output-text" id="linkedinAbout"></div>
+                    </div>
+                    <div id="interviewTab" class="tab-content">
+                        <div class="output-text" id="interviewQuestions"></div>
+                    </div>
+
+                    <div class="button-group" style="margin-top: 20px;">
+                        <button class="btn-secondary" onclick="copyCurrentTab()">Copy to Clipboard</button>
+                        <button class="btn-secondary" onclick="downloadCurrentTab()">Download as TXT</button>
+                    </div>
+                </div>
+
+                <div id="upgradePrompt" class="upgrade">
+                    <p>You've used your free optimizations.</p>
+                    <h3>Unlimited Access - $9.99</h3>
+                    <button onclick="checkout()">Upgrade to Pro</button>
+                    <small>One-time payment · Lifetime access</small>
+                </div>
             </div>
         </div>
+        <div class="note">Your data is processed by AI and not stored permanently.</div>
     </div>
 
     <script>
-        // Dark Mode
+        // Theme
         function toggleDarkMode() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            if (currentTheme === 'dark') {
+            const current = document.documentElement.getAttribute('data-theme');
+            if (current === 'dark') {
                 document.documentElement.setAttribute('data-theme', 'light');
                 localStorage.setItem('theme', 'light');
-                document.querySelector('.dark-mode-toggle').textContent = '🌙 Dark Mode';
             } else {
                 document.documentElement.setAttribute('data-theme', 'dark');
                 localStorage.setItem('theme', 'dark');
-                document.querySelector('.dark-mode-toggle').textContent = '☀️ Light Mode';
             }
         }
-
-        // Load saved theme
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
+        if (localStorage.getItem('theme') === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
-            document.querySelector('.dark-mode-toggle').textContent = '☀️ Light Mode';
         }
 
-        // File Upload
+        // File upload
         document.getElementById('resumeFile').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -453,133 +513,118 @@
             }
         });
 
-        // Free usage tracking
+        // Free tier
         let freeUsage = parseInt(localStorage.getItem('resumeFreeUsage') || '0');
         const FREE_LIMIT = 3;
-        let currentRewrittenResume = '';
+        let currentData = {};
 
         function updateFreeCounter() {
             const remaining = Math.max(0, FREE_LIMIT - freeUsage);
             document.getElementById('freeCount').innerText = remaining;
-            
             if (remaining === 0) {
                 document.getElementById('upgradePrompt').style.display = 'block';
                 document.getElementById('rewriteBtn').disabled = true;
             }
         }
 
-        // Example Data
-        const SAMPLE_RESUME = `Software Engineer with 4 years of experience in web development. Worked on frontend and backend projects. Built websites using React and Node.js. Improved performance and fixed bugs. Good at teamwork and communication.`;
+        // Samples
+        const SAMPLE_RESUME = `Software Engineer with 4 years of experience in web development. Worked on frontend and backend projects. Built websites using React and Node.js. Improved performance and fixed bugs. Strong teamwork and communication.`;
+        const SAMPLE_JOB = `Senior Frontend Engineer\nRequirements: 5+ years React experience, Strong TypeScript skills, Experience with state management (Redux, Zustand), Performance optimization expertise, Excellent communication and leadership`;
 
-        const SAMPLE_JOB = `Senior Frontend Engineer
-        Requirements:
-        - 5+ years React experience
-        - Strong TypeScript skills
-        - Experience with state management (Redux, Zustand)
-        - Performance optimization expertise
-        - Excellent communication and leadership`;
+        function loadSampleResume() { document.getElementById('resume').value = SAMPLE_RESUME; }
+        function loadSampleJob() { document.getElementById('jobDescription').value = SAMPLE_JOB; }
 
-        function loadExample(type) {
-            if (type === 'resume') {
-                document.getElementById('resume').value = SAMPLE_RESUME;
-            } else if (type === 'job') {
-                document.getElementById('jobDescription').value = SAMPLE_JOB;
-            }
-        }
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.dataset.tab;
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                if (tabName === 'rewritten') document.getElementById('rewrittenTab').classList.add('active');
+                if (tabName === 'coverletter') document.getElementById('coverletterTab').classList.add('active');
+                if (tabName === 'linkedin') document.getElementById('linkedinTab').classList.add('active');
+                if (tabName === 'interview') document.getElementById('interviewTab').classList.add('active');
+            });
+        });
 
-        function loadBothExamples() {
-            document.getElementById('resume').value = SAMPLE_RESUME;
-            document.getElementById('jobDescription').value = SAMPLE_JOB;
-        }
-
-        async function rewriteResume() {
+        async function analyzeAndGenerate() {
             const resume = document.getElementById('resume').value;
-            const jobDescription = document.getElementById('jobDescription').value;
-            
-            if (!resume || !jobDescription) {
-                alert('Please paste both your resume and job description');
-                return;
-            }
-            
-            if (freeUsage >= FREE_LIMIT) {
-                document.getElementById('upgradePrompt').style.display = 'block';
-                return;
-            }
-            
+            const job = document.getElementById('jobDescription').value;
+            if (!resume || !job) { alert('Please provide both resume and job description'); return; }
+            if (freeUsage >= FREE_LIMIT) { document.getElementById('upgradePrompt').style.display = 'block'; return; }
+
             document.getElementById('loading').style.display = 'block';
-            document.getElementById('results').style.display = 'none';
+            document.getElementById('resultsArea').style.display = 'none';
             document.getElementById('rewriteBtn').disabled = true;
-            
+
             try {
                 const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer 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'
-                    },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer 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' },
                     body: JSON.stringify({
                         model: 'openai/gpt-4o-mini',
-                        messages: [
+                        messages: [{
+                            role: 'system',
+                            content: `You are a professional career coach. Analyze the resume against the job description and return ONLY valid JSON:
                             {
-                                role: 'system',
-                                content: `You are a resume expert. Rewrite the user's resume to match the job description. Rules: 
-                                - Never invent experience or skills
-                                - Keep all dates and company names exactly as given
-                                - Reword bullet points using keywords from the job description
-                                - Keep all numbers and metrics unchanged
-                                - Return ONLY the rewritten resume as plain text`
-                            },
-                            {
-                                role: 'user',
-                                content: `Resume:\n${resume}\n\nJob Description:\n${jobDescription}\n\nRewrite this resume to match the job.`
+                                "score": 0-100,
+                                "missing_keywords": ["keyword1", "keyword2"],
+                                "rewritten_resume": "optimized resume text",
+                                "cover_letter": "professional cover letter",
+                                "linkedin_about": "2-3 paragraph LinkedIn bio",
+                                "interview_questions": ["q1", "q2", "q3", "q4", "q5"]
                             }
-                        ],
+                            Rules: Never invent experience. Keep all facts intact.`
+                        }, {
+                            role: 'user',
+                            content: `Resume:\n${resume}\n\nJob Description:\n${job}`
+                        }],
                         temperature: 0.7,
-                        max_tokens: 2000
+                        max_tokens: 3000
                     })
                 });
-                
                 const data = await response.json();
-                const rewrittenResume = data.choices[0].message.content;
-                currentRewrittenResume = rewrittenResume;
+                const content = data.choices[0].message.content;
+                const parsed = JSON.parse(content);
+
+                currentData = parsed;
+                document.getElementById('scoreValue').innerText = parsed.score + '%';
+                const deg = (parsed.score / 100) * 360;
+                document.getElementById('scoreCircle').style.background = `conic-gradient(#8b6914 ${deg}deg, #d4c5b0 ${deg}deg)`;
                 
-                document.getElementById('rewrittenResume').innerText = rewrittenResume;
-                document.getElementById('results').style.display = 'block';
+                const missingDiv = document.getElementById('missingKeywordsList');
+                missingDiv.innerHTML = parsed.missing_keywords.map(k => `<span class="keyword-tag">${k}</span>`).join('');
                 
+                document.getElementById('rewrittenResume').innerText = parsed.rewritten_resume;
+                document.getElementById('coverLetter').innerText = parsed.cover_letter;
+                document.getElementById('linkedinAbout').innerText = parsed.linkedin_about;
+                document.getElementById('interviewQuestions').innerHTML = parsed.interview_questions.map((q,i) => `${i+1}. ${q}`).join('\n\n');
+                
+                document.getElementById('resultsArea').style.display = 'block';
                 freeUsage++;
                 localStorage.setItem('resumeFreeUsage', freeUsage);
                 updateFreeCounter();
-                
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error: ' + error.message);
+            } catch (err) {
+                console.error(err);
+                alert('Error: ' + err.message);
             } finally {
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('rewriteBtn').disabled = false;
             }
         }
-        
-        function copyToClipboard() {
-            navigator.clipboard.writeText(currentRewrittenResume);
-            alert('✓ Copied to clipboard!');
+
+        let currentTabContent = '';
+        function updateCurrentTab() {
+            const activeTab = document.querySelector('.tab.active').dataset.tab;
+            if (activeTab === 'rewritten') currentTabContent = currentData.rewritten_resume || '';
+            else if (activeTab === 'coverletter') currentTabContent = currentData.cover_letter || '';
+            else if (activeTab === 'linkedin') currentTabContent = currentData.linkedin_about || '';
+            else if (activeTab === 'interview') currentTabContent = (currentData.interview_questions || []).join('\n\n');
         }
-        
-        function downloadText() {
-            const blob = new Blob([currentRewrittenResume], { type: 'text/plain' });
-            const a = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            a.href = url;
-            a.download = 'tailored_resume.txt';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-        
-        function checkout() {
-            alert('Payment coming soon! Email resume@match.ai for Pro access.');
-        }
-        
+        function copyCurrentTab() { updateCurrentTab(); navigator.clipboard.writeText(currentTabContent); alert('Copied!'); }
+        function downloadCurrentTab() { updateCurrentTab(); const blob = new Blob([currentTabContent], {type: 'text/plain'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'resume_output.txt'; a.click(); URL.revokeObjectURL(a.href); }
+        function checkout() { alert('Pro version coming soon. Email pro@resumematch.com for early access.'); }
         updateFreeCounter();
     </script>
 </body>
