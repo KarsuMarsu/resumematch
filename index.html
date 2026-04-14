@@ -489,7 +489,7 @@ Rules: Never invent experience. ${custom ? `Special instruction: ${custom}` : ''
 
                 const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': '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' },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer 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' },
                     body: JSON.stringify({
                         model: 'openai/gpt-4o-mini',
                         messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: `Resume:\n${resume}\n\nJob:\n${job}` }],
